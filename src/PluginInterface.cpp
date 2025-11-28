@@ -53,6 +53,60 @@ extern "C" void CreateReport(rapidjson::Value& request,
         return oss.str();
     };
 
+    // Server logs chart
+    const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(log_vector);
+
+    Node server_logs_chart = ResponsiveContainer({
+        LineChart({
+            XAxis({}, props({{"dataKey", "day"}})),
+            YAxis(),
+            Tooltip(),
+            Legend(),
+
+            // SYSTEM
+            Line({}, props({
+                {"type", "monotone"},
+                {"dataKey", "system"},
+                {"stroke", "#4A90E2"}
+            })),
+
+            // INFO
+            Line({}, props({
+                {"type", "monotone"},
+                {"dataKey", "info"},
+                {"stroke", "#7ED321"}
+            })),
+
+            // REQUEST
+            Line({}, props({
+                {"type", "monotone"},
+                {"dataKey", "request"},
+                {"stroke", "#F5A623"}
+            })),
+
+            // STOP_OUT
+            Line({}, props({
+                {"type", "monotone"},
+                {"dataKey", "stop_out"},
+                {"stroke", "#D0021B"}
+            })),
+
+            // TOTAL
+            Line({}, props({
+                {"type", "monotone"},
+                {"dataKey", "total"},
+                {"stroke", "#9013FE"},
+                {"strokeWidth", 2.0}
+            }))
+        }, props({
+            {"data", server_logs_chart_data}
+        }))
+    }, props({
+        {"width", "100%"},
+        {"height", 300.0}
+    }));
+
+    // Main table
     auto create_table = [&](const std::vector<ServerLog>& logs) -> Node {
         std::vector<Node> thead_rows;
         std::vector<Node> tbody_rows;
@@ -85,7 +139,10 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     // Total report
     const Node report = div({
-        h1({text("Daily Logs Report")}),
+        h1({text("Server Logs")}),
+        h2({text("Server Messages")}),
+        server_logs_chart,
+        h2({text("All Logs")}),
         create_table(log_vector)
     });
 

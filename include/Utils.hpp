@@ -24,5 +24,7 @@ namespace utils {
 
     int CalculateTimestampForTwoWeeksAgo(const int timestamp);
 
-    std::string FormatDateForChart(time_t time);
+    std::string ExtractDate(const std::string& date);
+
+    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& log_vector);
 }

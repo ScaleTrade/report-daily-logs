@@ -24,7 +24,7 @@ namespace utils {
             text_object.AddMember("type", "#text", allocator);
 
             Value props(kObjectType);
-            props.AddMember("value", "Daily Trades report", allocator);
+            props.AddMember("value", "Daily Logs report", allocator);
 
             text_object.AddMember("props", props, allocator);
             children.PushBack(text_object, allocator);
@@ -101,15 +101,63 @@ namespace utils {
         return timestamp - two_weeks_interval;
     }
 
-    std::string FormatDateForChart(time_t time) {
-        std::tm tm{};
-        #ifdef _WIN32
-                localtime_s(&tm, &t);
-        #else
-                localtime_r(&time, &tm);
-        #endif
-                std::ostringstream oss;
-                oss << std::put_time(&tm, "%Y.%m.%d");
-                return oss.str();
+    std::string ExtractDate(const std::string& date_string) {
+        if (date_string.size() > 10) {
+            return date_string.substr(0, 10);
+        }
+        return date_string;
+    }
+
+    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& log_vector) {
+        std::map<std::string, LogCountPoint> logs_map;
+
+        for (const auto& log : log_vector) {
+            std::string day = ExtractDate(log.time);
+
+            auto& point = logs_map[day];
+            point.date = day;
+
+            if (log.type == "SYSTEM") {
+                point.system++;
             }
+            else if (log.type == "INFO") {
+                point.info++;
+            }
+            else if (log.type == "REQUEST") {
+                point.request++;
+            }
+            else if (log.type == "STOP_OUT") {
+                point.stop_out++;
+            }
+
+            point.total++;
+        }
+
+        std::vector<LogCountPoint> data_points;
+        data_points.reserve(logs_map.size());
+
+        for (const auto& [date, point] : logs_map) {
+            data_points.push_back(point);
+        }
+
+        std::sort(data_points.begin(), data_points.end(),
+            [](const LogCountPoint& a, const LogCountPoint& b) {
+                return a.date < b.date;
+            });
+
+        JSONArray chart_data;
+        for (const auto& point : data_points) {
+            JSONObject row;
+            row["day"]      = JSONValue(point.date);
+            row["system"]   = JSONValue(static_cast<double>(point.system));
+            row["info"]     = JSONValue(static_cast<double>(point.info));
+            row["request"]  = JSONValue(static_cast<double>(point.request));
+            row["stop_out"] = JSONValue(static_cast<double>(point.stop_out));
+            row["total"]    = JSONValue(static_cast<double>(point.total));
+
+            chart_data.emplace_back(row);
+        }
+
+        return chart_data;
+    }
 }
