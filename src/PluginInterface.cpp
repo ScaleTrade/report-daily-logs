@@ -53,9 +53,40 @@ extern "C" void CreateReport(rapidjson::Value& request,
         return oss.str();
     };
 
+    auto create_table = [&](const std::vector<ServerLog>& logs) -> Node {
+        std::vector<Node> thead_rows;
+        std::vector<Node> tbody_rows;
+        std::vector<Node> tfoot_rows;
+
+        // Thead
+        thead_rows.push_back(tr({
+            th({div({text("Time")})}),
+            th({div({text("Type")})}),
+            th({div({text("IP")})}),
+            th({div({text("Message")})})
+        }));
+
+        // Tbody
+        for (const auto& log : logs) {
+            tbody_rows.push_back(tr({
+                td({div({text(log.time)})}),
+                td({div({text(log.type)})}),
+                td({div({text(log.ip)})}),
+                td({div({text(log.message)})})
+            }));
+        }
+
+        return table({
+            thead(thead_rows),
+            tbody(tbody_rows),
+            tfoot(tfoot_rows),
+        }, props({{"className", "table"}}));
+    };
+
     // Total report
     const Node report = div({
         h1({text("Daily Logs Report")}),
+        create_table(log_vector)
     });
 
     utils::CreateUI(report, response, allocator);
