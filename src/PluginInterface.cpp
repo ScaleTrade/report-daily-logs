@@ -39,10 +39,12 @@ extern "C" void CreateReport(rapidjson::Value& request,
     std::vector<ServerLog> log_vector;
 
     try {
-
+        server->GetLogs(from_two_weeks_ago, to, "ALL", "request", &log_vector);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
+
+    std::cout << "logs size: " << log_vector.size() << std::endl;
 
     // Лямбда подготавливающая значения double для вставки в AST (округление до 2-х знаков)
     auto format_double_for_AST = [](double value) -> std::string {
