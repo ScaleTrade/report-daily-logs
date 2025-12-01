@@ -106,26 +106,35 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     // Top flooder chart
     const JSONArray top_flooders_chart_data = utils::CreateTopFloodersChartData(requests_logs_vector);
+    std::vector<std::string> colors = {"#4A90E2", "#50E3C2", "#F5A623", "#D0021B", "#9013FE"};
+    std::string other_color = "#B8E986";
 
     Node top_flooders_chart = ResponsiveContainer({
-        PieChart({
-            Tooltip(),
-
-            Pie({}, props({
-                {"data", top_flooders_chart_data},
-                {"dataKey", "value"},
-                {"nameKey", "label"},
-                {"cx", "50%"},
-                {"cy", "50%"},
-                {"outerRadius", 110.0},
-                {"fill", "#4A90E2"},
-                {"label", true}
-            }))
-        })
-    }, props({
-        {"width", "100%"},
-        {"height", 300.0}
-    }));
+            PieChart({
+                Tooltip(),
+                Legend(),
+                Pie({
+                    Cell({}, props({ {"fill", "#4A90E2"} })),
+                    Cell({}, props({ {"fill", "#50E3C2"} })),
+                    Cell({}, props({ {"fill", "#F5A623"} })),
+                    Cell({}, props({ {"fill", "#D0021B"} })),
+                    Cell({}, props({ {"fill", "#50E3C2"} })),
+                    Cell({}, props({ {"fill", "#9013FE"} })),
+                    Cell({}, props({ {"fill", "#B8E986"} })),
+                }, props({
+                    {"dataKey", "value"},
+                    {"nameKey", "name"},
+                    {"data", top_flooders_chart_data},
+                    {"cx", "50%"},
+                    {"cy", "50%"},
+                    {"outerRadius", 100.0},
+                    {"label", true}
+                }))
+            })
+        }, props({
+            {"width", "100%"},
+            {"height", 300.0}
+        }));
 
     // Main table
     auto create_main_table = [&](const std::vector<ServerLog>& logs) -> Node {
