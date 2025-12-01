@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
+#include <cctype>
 #include "ast/Ast.hpp"
 #include <rapidjson/document.h>
 #include "Structures.hpp"
@@ -25,6 +26,8 @@ namespace utils {
     int CalculateTimestampForTwoWeeksAgo(const int timestamp);
 
     std::string ExtractDate(const std::string& date);
+
+    bool IsValidIpAddress(const std::string& ip_address);
 
     JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& logs_vector);
 

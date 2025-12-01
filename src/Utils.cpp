@@ -108,6 +108,30 @@ namespace utils {
         return date_string;
     }
 
+    bool IsValidIpAddress(const std::string& ip_address) {
+        std::istringstream ss(ip_address);
+        std::string token;
+        int segments = 0;
+
+        while (std::getline(ss, token, '.')) {
+            // Проверка, что сегмент не пустой
+            if (token.empty()) return false;
+
+            // Проверка, что сегмент состоит только из цифр
+            for (char c : token) {
+                if (!std::isdigit(c)) return false;
+            }
+
+            int num = std::stoi(token);
+            if (num < 0 || num > 255) return false;
+
+            ++segments;
+        }
+
+        // Должно быть ровно 4 сегмента
+        return segments == 4;
+    }
+
     JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& logs_vector) {
         std::map<std::string, LogCountPoint> logs_map;
 
@@ -166,7 +190,9 @@ namespace utils {
 
         // Подсчет количества логов по IP
         for (const auto &log : logs_vector) {
-            ip_counts[log.ip]++;
+            if (IsValidIpAddress(log.ip)) {
+                ip_counts[log.ip]++;
+            }
         }
 
         // Перенос в вектор для сортировки
@@ -203,16 +229,14 @@ namespace utils {
         }
 
         // Добавление категории "Other"
-        if (sorted_ips.size() > 5) {
-            double other_sum = total - top_sum;
-            double other_percent = (other_sum / total) * 100.0;
+        double other_sum = total - top_sum;
+        double other_percent = (other_sum / total) * 100.0;
 
-            JSONObject other_item;
-            other_item["label"] = "Other";
-            other_item["value"] = other_percent;
+        JSONObject other_item;
+        other_item["label"] = "Other";
+        other_item["value"] = other_percent;
 
-            result.emplace_back(other_item);
-        }
+        result.emplace_back(other_item);
 
         return result;
     }
