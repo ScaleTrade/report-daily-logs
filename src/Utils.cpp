@@ -176,7 +176,7 @@ namespace utils {
         std::sort(sorted_ips.begin(), sorted_ips.end(),
                   [](const auto &a, const auto &b) { return a.second > b.second; });
 
-        // Считаем общее количество логов
+        // Общее количепство логов
         double total = 0;
         for (const auto &p : sorted_ips) {
             total += p.second;
@@ -197,25 +197,23 @@ namespace utils {
 
             JSONObject item;
             item["label"] = ip;
-            item["value"] = std::to_string(percent) + "%";
+            item["value"] = percent;
 
             result.emplace_back(item);
         }
 
-        // Добавляем категорию "Other"
+        // Добавление категории "Other"
         if (sorted_ips.size() > 5) {
             double other_sum = total - top_sum;
             double other_percent = (other_sum / total) * 100.0;
 
             JSONObject other_item;
             other_item["label"] = "Other";
-            other_item["value"] = std::to_string(other_percent) + "%";
+            other_item["value"] = other_percent;
 
             result.emplace_back(other_item);
         }
 
         return result;
     }
-
-
 }
