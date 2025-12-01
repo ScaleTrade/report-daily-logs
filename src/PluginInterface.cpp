@@ -34,6 +34,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     std::vector<ServerLog> all_logs_vector;
     std::vector<ServerLog> requests_logs_vector;
+    std::vector<std::string> colors = {"#4A90E2", "#50E3C2", "#F5A623", "#D0021B", "#9013FE"};
+    std::string other_color = "#B8E986";
 
     try {
         server->GetLogs(from_two_weeks_ago, to, "", "", &all_logs_vector);
@@ -42,61 +44,31 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
 
-    std::cout << "Request logs size: " << requests_logs_vector.size() << std::endl;
-
-    // Лямбда подготавливающая значения double для вставки в AST (округление до 2-х знаков)
-    auto format_double_for_AST = [](double value) -> std::string {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << value;
-        return oss.str();
-    };
-
     // Server logs chart
     const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(all_logs_vector);
-
-    Node server_logs_chart = ResponsiveContainer({
-        LineChart({
+    const std::vector<std::string> line_keys = {"system", "info", "request", "stop_out", "total"};
+    std::vector<Node> line_nodes = {
+            // Default nodes
             XAxis({}, props({{"dataKey", "day"}})),
             YAxis(),
             Tooltip(),
-            Legend(),
+            Legend()};
 
-            // SYSTEM
+    // Формирование Line nodes
+    for (size_t i = 0; i < line_keys.size(); ++i) {
+        std::string color = (line_keys[i] == "total") ? other_color : colors[i];
+
+        line_nodes.push_back(
             Line({}, props({
                 {"type", "monotone"},
-                {"dataKey", "system"},
-                {"stroke", "#4A90E2"}
-            })),
-
-            // INFO
-            Line({}, props({
-                {"type", "monotone"},
-                {"dataKey", "info"},
-                {"stroke", "#7ED321"}
-            })),
-
-            // REQUEST
-            Line({}, props({
-                {"type", "monotone"},
-                {"dataKey", "request"},
-                {"stroke", "#F5A623"}
-            })),
-
-            // STOP_OUT
-            Line({}, props({
-                {"type", "monotone"},
-                {"dataKey", "stop_out"},
-                {"stroke", "#D0021B"}
-            })),
-
-            // TOTAL
-            Line({}, props({
-                {"type", "monotone"},
-                {"dataKey", "total"},
-                {"stroke", "#9013FE"},
-                {"strokeWidth", 2.0}
+                {"dataKey", line_keys[i]},
+                {"stroke", color}
             }))
-        }, props({
+        );
+    }
+
+    Node server_logs_chart = ResponsiveContainer({
+        LineChart(line_nodes, props({
             {"data", server_logs_chart_data}
         }))
     }, props({
@@ -106,13 +78,11 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     // Top flooder chart
     const JSONArray top_flooders_chart_data = utils::CreateTopFloodersChartData(requests_logs_vector);
-    std::vector<std::string> top_flooders_colors = {"#4A90E2", "#50E3C2", "#F5A623", "#D0021B", "#9013FE"};
-    std::string top_flooders_other_color = "#B8E986";
 
     // Вектор Cell с цветами для каждой записи
     std::vector<Node> top_flooders_pie_cells;
     for (size_t i = 0; i < top_flooders_chart_data.size(); ++i) {
-        std::string color = i < top_flooders_colors.size() ? top_flooders_colors[i] : top_flooders_other_color;
+        std::string color = i < colors.size() ? colors[i] : other_color;
         top_flooders_pie_cells.push_back(Cell({}, props({{"fill", color}})));
     }
 
