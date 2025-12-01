@@ -202,7 +202,7 @@ namespace utils {
         std::sort(sorted_ips.begin(), sorted_ips.end(),
                   [](const auto &a, const auto &b) { return a.second > b.second; });
 
-        // Общее количепство логов
+        // Общее количество логов
         double total = 0;
         for (const auto &p : sorted_ips) {
             total += p.second;
@@ -211,7 +211,7 @@ namespace utils {
         JSONArray result;
 
         // Подготовка топ 5
-        int limit = std::min((int)sorted_ips.size(), 5);
+        int limit = std::min((int)sorted_ips.size(), 2);
         double top_sum = 0.0;
 
         for (int i = 0; i < limit; ++i) {
