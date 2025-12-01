@@ -211,7 +211,7 @@ namespace utils {
         JSONArray result;
 
         // Подготовка топ 5
-        int limit = 5;
+        int limit = std::min((int)sorted_ips.size(), 5);
         double top_sum = 0.0;
 
         for (int i = 0; i < limit; ++i) {
