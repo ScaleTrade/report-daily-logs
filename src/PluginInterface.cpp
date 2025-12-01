@@ -12,7 +12,7 @@ extern "C" void AboutReport(rapidjson::Value& request,
         Value().SetString("Shows platform operation statistics for a specified day, including the number "
             "of regular and error messages in the journal, critical errors, and connection logs.",
              allocator), allocator);
-    response.AddMember("type", REPORT_DAILY_GROUP_TYPE, allocator);
+    response.AddMember("type", REPORT_DAILY_TYPE, allocator);
 }
 
 extern "C" void DestroyReport() {}
@@ -21,13 +21,9 @@ extern "C" void CreateReport(rapidjson::Value& request,
                              rapidjson::Value& response,
                              rapidjson::Document::AllocatorType& allocator,
                              CServerInterface* server) {
-    std::string group_mask;
     int from;
     int to;
     int from_two_weeks_ago;
-    if (request.HasMember("group") && request["group"].IsString()) {
-        group_mask = request["group"].GetString();
-    }
     if (request.HasMember("from") && request["from"].IsNumber()) {
         from = request["from"].GetInt();
         from_two_weeks_ago = utils::CalculateTimestampForTwoWeeksAgo(from);
@@ -36,15 +32,17 @@ extern "C" void CreateReport(rapidjson::Value& request,
         to = request["to"].GetInt();
     }
 
-    std::vector<ServerLog> log_vector;
+    std::vector<ServerLog> all_logs_vector;
+    std::vector<ServerLog> requests_logs_vector;
 
     try {
-        server->GetLogs(from_two_weeks_ago, to, "", "", &log_vector);
+        server->GetLogs(from_two_weeks_ago, to, "", "", &all_logs_vector);
+        server->GetLogs(from, to, "REQUEST", "", &requests_logs_vector);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
 
-    std::cout << "logs size: " << log_vector.size() << std::endl;
+    std::cout << "Request logs size: " << requests_logs_vector.size() << std::endl;
 
     // Лямбда подготавливающая значения double для вставки в AST (округление до 2-х знаков)
     auto format_double_for_AST = [](double value) -> std::string {
@@ -54,7 +52,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     };
 
     // Server logs chart
-    const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(log_vector);
+    const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(all_logs_vector);
 
     Node server_logs_chart = ResponsiveContainer({
         LineChart({
@@ -107,7 +105,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     }));
 
     // Main table
-    auto create_table = [&](const std::vector<ServerLog>& logs) -> Node {
+    auto create_main_table = [&](const std::vector<ServerLog>& logs) -> Node {
         std::vector<Node> thead_rows;
         std::vector<Node> tbody_rows;
         std::vector<Node> tfoot_rows;
@@ -143,7 +141,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         h2({text("Server Messages")}),
         server_logs_chart,
         h2({text("All Logs")}),
-        create_table(log_vector)
+        create_main_table(all_logs_vector)
     });
 
     utils::CreateUI(report, response, allocator);
