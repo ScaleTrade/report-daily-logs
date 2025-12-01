@@ -220,6 +220,8 @@ namespace utils {
             top_sum += count;
 
             double percent = (count / total) * 100.0;
+            // Округление до 2 знаков после запятой
+            percent = std::round(percent * 100.0) / 100.0;
 
             JSONObject item;
             item["label"] = ip;
@@ -231,6 +233,8 @@ namespace utils {
         // Добавление категории "Other"
         double other_sum = total - top_sum;
         double other_percent = (other_sum / total) * 100.0;
+        // Округление до 2 знаков после запятой
+        other_percent = std::round(other_percent * 100.0) / 100.0;
 
         JSONObject other_item;
         other_item["label"] = "Other";
