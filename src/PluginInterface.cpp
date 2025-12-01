@@ -123,7 +123,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
                     Cell({}, props({ {"fill", "#B8E986"} })),
                 }, props({
                     {"dataKey", "value"},
-                    {"nameKey", "name"},
+                    {"nameKey", "label"},
                     {"data", top_flooders_chart_data},
                     {"cx", "50%"},
                     {"cy", "50%"},
