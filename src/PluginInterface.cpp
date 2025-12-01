@@ -109,19 +109,19 @@ extern "C" void CreateReport(rapidjson::Value& request,
     std::vector<std::string> colors = {"#4A90E2", "#50E3C2", "#F5A623", "#D0021B", "#9013FE"};
     std::string other_color = "#B8E986";
 
+        // Вектор Cell с цветами для каждой записи
+        std::vector<Node> pie_cells;
+        for (size_t i = 0; i < top_flooders_chart_data.size(); ++i) {
+            std::string color = i < colors.size() ? colors[i] : other_color;
+            pie_cells.push_back(Cell({}, props({{"fill", color}})));
+        }
+
+
     Node top_flooders_chart = ResponsiveContainer({
             PieChart({
                 Tooltip(),
                 Legend(),
-                Pie({
-                    // Cell({}, props({ {"fill", "#4A90E2"} })),
-                    // Cell({}, props({ {"fill", "#50E3C2"} })),
-                    // Cell({}, props({ {"fill", "#F5A623"} })),
-                    // Cell({}, props({ {"fill", "#D0021B"} })),
-                    // Cell({}, props({ {"fill", "#50E3C2"} })),
-                    // Cell({}, props({ {"fill", "#9013FE"} })),
-                    // Cell({}, props({ {"fill", "#B8E986"} })),
-                }, props({
+                Pie(pie_cells, props({
                     {"dataKey", "value"},
                     {"nameKey", "label"},
                     {"data", top_flooders_chart_data},
