@@ -141,7 +141,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         h2({text("Server Messages")}),
         server_logs_chart,
         h2({text("All Logs")}),
-        create_main_table(all_logs_vector)
+        create_main_table(requests_logs_vector)
     });
 
     utils::CreateUI(report, response, allocator);
