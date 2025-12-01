@@ -108,10 +108,10 @@ namespace utils {
         return date_string;
     }
 
-    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& log_vector) {
+    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& logs_vector) {
         std::map<std::string, LogCountPoint> logs_map;
 
-        for (const auto& log : log_vector) {
+        for (const auto& log : logs_vector) {
             std::string day = ExtractDate(log.time);
 
             auto& point = logs_map[day];
@@ -160,4 +160,62 @@ namespace utils {
 
         return chart_data;
     }
+
+    JSONArray CreateTopFloodersChartData(const std::vector<ServerLog>& logs_vector) {
+        std::unordered_map<std::string, int> ip_counts;
+
+        // Подсчет количества логов по IP
+        for (const auto &log : logs_vector) {
+            ip_counts[log.ip]++;
+        }
+
+        // Перенос в вектор для сортировки
+        std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
+
+        // Сортировка по убыванию
+        std::sort(sorted_ips.begin(), sorted_ips.end(),
+                  [](const auto &a, const auto &b) { return a.second > b.second; });
+
+        // Считаем общее количество логов
+        double total = 0;
+        for (const auto &p : sorted_ips) {
+            total += p.second;
+        }
+
+        JSONArray result;
+
+        // Подготовка топ 5
+        int limit = std::min((int)sorted_ips.size(), 5);
+        double top_sum = 0.0;
+
+        for (int i = 0; i < limit; ++i) {
+            const auto &ip = sorted_ips[i].first;
+            int count = sorted_ips[i].second;
+            top_sum += count;
+
+            double percent = (count / total) * 100.0;
+
+            JSONObject item;
+            item["label"] = ip;
+            item["value"] = std::to_string(percent) + "%";
+
+            result.emplace_back(item);
+        }
+
+        // Добавляем категорию "Other"
+        if (sorted_ips.size() > 5) {
+            double other_sum = total - top_sum;
+            double other_percent = (other_sum / total) * 100.0;
+
+            JSONObject other_item;
+            other_item["label"] = "Other";
+            other_item["value"] = std::to_string(other_percent) + "%";
+
+            result.emplace_back(other_item);
+        }
+
+        return result;
+    }
+
+
 }

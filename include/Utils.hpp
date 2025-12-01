@@ -26,5 +26,7 @@ namespace utils {
 
     std::string ExtractDate(const std::string& date);
 
-    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& log_vector);
+    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& logs_vector);
+
+    JSONArray CreateTopFloodersChartData(const std::vector<ServerLog>& logs_vector);
 }

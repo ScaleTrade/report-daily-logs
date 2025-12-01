@@ -104,6 +104,29 @@ extern "C" void CreateReport(rapidjson::Value& request,
         {"height", 300.0}
     }));
 
+    // Top flooder chart
+    const JSONArray top_flooders_chart_data = utils::CreateTopFloodersChartData(requests_logs_vector);
+
+    Node top_flooders_chart = ResponsiveContainer({
+        PieChart({
+            Tooltip(),
+
+            Pie({}, props({
+                {"data", top_flooders_chart_data},
+                {"dataKey", "value"},
+                {"nameKey", "label"},
+                {"cx", "50%"},
+                {"cy", "50%"},
+                {"outerRadius", 110.0},
+                {"fill", "#4A90E2"},
+                {"label", true}
+            }))
+        })
+    }, props({
+        {"width", "100%"},
+        {"height", 300.0}
+    }));
+
     // Main table
     auto create_main_table = [&](const std::vector<ServerLog>& logs) -> Node {
         std::vector<Node> thead_rows;
@@ -140,6 +163,8 @@ extern "C" void CreateReport(rapidjson::Value& request,
         h1({text("Server Logs")}),
         h2({text("Server Messages")}),
         server_logs_chart,
+        h2({text("Top flooders")}),
+        top_flooders_chart,
         h2({text("All Logs")}),
         create_main_table(requests_logs_vector)
     });
