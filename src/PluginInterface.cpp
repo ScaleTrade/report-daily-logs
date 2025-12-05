@@ -137,40 +137,31 @@ extern "C" void CreateReport(rapidjson::Value& request,
     // };
 
     // Main table v.2
-    // TableBuilder table_builder("DemoReport");
-    //
-    // table_builder.SetIdColumn("id");
-    // table_builder.SetOrderBy("id", "DESC");
-    // table_builder.EnableRefreshButton(false);
-    // table_builder.EnableBookmarksButton(false);
-    // table_builder.EnableExportButton(true);
-    //
-    // table_builder.AddColumn({"id", "ID"});
-    // table_builder.AddColumn({"type", "TYPE"});
-    // table_builder.AddColumn({"time", "TIME"});
-    // table_builder.AddColumn({"ip", "IP"});
-    // table_builder.AddColumn({"message", "MESSAGE"});
-    //
-    // for (size_t i; i < all_logs_vector.size(); i++) {
-    //     table_builder.AddRow({
-    //         {"id", std::to_string(i)},
-    //         {"type", all_logs_vector[i].type},
-    //         {"time", all_logs_vector[i].time},
-    //         {"message", all_logs_vector[i].message}
-    //     });
-    // }
-    //
-    // const JSONObject logs_table_props = table_builder.CreateTableProps();
-    // const Node logs_table_node = Table({}, logs_table_props);
+    TableBuilder table_builder("DemoReport");
 
-    // for (const auto& trade : trades_vector) {
-    //     table_builder.AddRow({
-    //         {"order", std::to_string(trade.order)},
-    //         {"login", std::to_string(trade.login)},
-    //         {"open_time", utils::FormatTimestampToString(trade.open_time)},
-    //         {"close_time", utils::FormatTimestampToString(trade.close_time)}
-    //     });
-    // }
+    table_builder.SetIdColumn("id");
+    table_builder.SetOrderBy("id", "DESC");
+    table_builder.EnableRefreshButton(false);
+    table_builder.EnableBookmarksButton(false);
+    table_builder.EnableExportButton(true);
+
+    table_builder.AddColumn({"id", "ID"});
+    table_builder.AddColumn({"type", "TYPE"});
+    table_builder.AddColumn({"time", "TIME"});
+    table_builder.AddColumn({"ip", "IP"});
+    table_builder.AddColumn({"message", "MESSAGE"});
+
+    for (size_t i; i < all_logs_vector.size(); i++) {
+        table_builder.AddRow({
+            {"id", std::to_string(i)},
+            {"type", all_logs_vector[i].type},
+            {"time", all_logs_vector[i].time},
+            {"message", all_logs_vector[i].message}
+        });
+    }
+
+    const JSONObject logs_table_props = table_builder.CreateTableProps();
+    const Node logs_table_node = Table({}, logs_table_props);
 
     // Total report
     const Node report = div({
@@ -180,7 +171,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         h2({text("Top flooders")}),
         top_flooders_chart,
         h2({text("All Logs")}),
-        // logs_table_node
+        logs_table_node
     });
 
     utils::CreateUI(report, response, allocator);
