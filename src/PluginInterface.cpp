@@ -137,7 +137,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     // };
 
     // Main table v.2
-    TableBuilder table_builder("DemoReport");
+    TableBuilder table_builder("DailyLogsReport");
 
     table_builder.SetIdColumn("id");
     table_builder.SetOrderBy("id", "DESC");
