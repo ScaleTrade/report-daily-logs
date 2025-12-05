@@ -67,7 +67,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         );
     }
 
-    Node server_logs_chart = ResponsiveContainer({
+    Node server_logs_chart_node = ResponsiveContainer({
         LineChart(line_nodes, props({
             {"data", server_logs_chart_data}
         }))
@@ -105,46 +105,82 @@ extern "C" void CreateReport(rapidjson::Value& request,
         {"height", 300.0}
     }));
 
-    // Main table
-    auto create_main_table = [&](const std::vector<ServerLog>& logs) -> Node {
-        std::vector<Node> thead_rows;
-        std::vector<Node> tbody_rows;
-        std::vector<Node> tfoot_rows;
+    // Main table v.1
+    // auto create_main_table_node = [&](const std::vector<ServerLog>& logs) -> Node {
+    //     std::vector<Node> thead_rows;
+    //     std::vector<Node> tbody_rows;
+    //     std::vector<Node> tfoot_rows;
+    //
+    //     // Thead
+    //     thead_rows.push_back(tr({
+    //         th({div({text("Time")})}),
+    //         th({div({text("Type")})}),
+    //         th({div({text("IP")})}),
+    //         th({div({text("Message")})})
+    //     }));
+    //
+    //     // Tbody
+    //     for (const auto& log : logs) {
+    //         tbody_rows.push_back(tr({
+    //             td({div({text(log.time)})}),
+    //             td({div({text(log.type)})}),
+    //             td({div({text(log.ip)})}),
+    //             td({div({text(log.message)})})
+    //         }));
+    //     }
+    //
+    //     return table({
+    //         thead(thead_rows),
+    //         tbody(tbody_rows),
+    //         tfoot(tfoot_rows),
+    //     }, props({{"className", "table"}}));
+    // };
 
-        // Thead
-        thead_rows.push_back(tr({
-            th({div({text("Time")})}),
-            th({div({text("Type")})}),
-            th({div({text("IP")})}),
-            th({div({text("Message")})})
-        }));
+    // Main table v.2
+    TableBuilder table_builder("DemoReport");
 
-        // Tbody
-        for (const auto& log : logs) {
-            tbody_rows.push_back(tr({
-                td({div({text(log.time)})}),
-                td({div({text(log.type)})}),
-                td({div({text(log.ip)})}),
-                td({div({text(log.message)})})
-            }));
-        }
+    table_builder.SetIdColumn("id");
+    table_builder.SetOrderBy("id", "DESC");
+    table_builder.EnableRefreshButton(false);
+    table_builder.EnableBookmarksButton(false);
+    table_builder.EnableExportButton(true);
 
-        return table({
-            thead(thead_rows),
-            tbody(tbody_rows),
-            tfoot(tfoot_rows),
-        }, props({{"className", "table"}}));
-    };
+    table_builder.AddColumn({"id", "ID"});
+    table_builder.AddColumn({"type", "TYPE"});
+    table_builder.AddColumn({"time", "TIME"});
+    table_builder.AddColumn({"ip", "IP"});
+    table_builder.AddColumn({"message", "MESSAGE"});
+
+    for (size_t i; i < all_logs_vector.size(); i++) {
+        table_builder.AddRow({
+            {"id", std::to_string(i)},
+            {"type", all_logs_vector[i].type},
+            {"time", all_logs_vector[i].time},
+            {"message", all_logs_vector[i].message}
+        });
+    }
+
+    const JSONObject logs_table_props = table_builder.CreateTableProps();
+    const Node logs_table_node = Table({}, logs_table_props);
+
+    // for (const auto& trade : trades_vector) {
+    //     table_builder.AddRow({
+    //         {"order", std::to_string(trade.order)},
+    //         {"login", std::to_string(trade.login)},
+    //         {"open_time", utils::FormatTimestampToString(trade.open_time)},
+    //         {"close_time", utils::FormatTimestampToString(trade.close_time)}
+    //     });
+    // }
 
     // Total report
     const Node report = div({
         h1({text("Server Logs")}),
         h2({text("Server Messages")}),
-        server_logs_chart,
+        server_logs_chart_node,
         h2({text("Top flooders")}),
         top_flooders_chart,
         h2({text("All Logs")}),
-        create_main_table(requests_logs_vector)
+        logs_table_node
     });
 
     utils::CreateUI(report, response, allocator);
