@@ -44,9 +44,6 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
 
-    std::cout << "ALL size: " << all_logs_vector.size() << std::endl;
-    std::cout << "REQ size: " << requests_logs_vector.size() << std::endl;
-
     // Server logs chart
     const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(all_logs_vector);
     const std::vector<std::string> line_keys = {"system", "info", "request", "stop_out", "total"};
@@ -108,38 +105,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
         {"height", 300.0}
     }));
 
-    // Main table v.1
-    // auto create_main_table_node = [&](const std::vector<ServerLog>& logs) -> Node {
-    //     std::vector<Node> thead_rows;
-    //     std::vector<Node> tbody_rows;
-    //     std::vector<Node> tfoot_rows;
-    //
-    //     // Thead
-    //     thead_rows.push_back(tr({
-    //         th({div({text("Time")})}),
-    //         th({div({text("Type")})}),
-    //         th({div({text("IP")})}),
-    //         th({div({text("Message")})})
-    //     }));
-    //
-    //     // Tbody
-    //     for (const auto& log : logs) {
-    //         tbody_rows.push_back(tr({
-    //             td({div({text(log.time)})}),
-    //             td({div({text(log.type)})}),
-    //             td({div({text(log.ip)})}),
-    //             td({div({text(log.message)})})
-    //         }));
-    //     }
-    //
-    //     return table({
-    //         thead(thead_rows),
-    //         tbody(tbody_rows),
-    //         tfoot(tfoot_rows),
-    //     }, props({{"className", "table"}}));
-    // };
-
-    // Main table v.2
+    // Main table
     TableBuilder table_builder("DailyLogsReport");
 
     table_builder.SetIdColumn("id");
