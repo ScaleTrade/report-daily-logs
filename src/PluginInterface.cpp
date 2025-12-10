@@ -133,7 +133,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     const Node logs_table_node = Table({}, logs_table_props);
 
     // Total report
-    const Node report = div({
+    const Node report = Column({
         h1({text("Server Logs")}),
         h2({text("Server Messages")}),
         server_logs_chart_node,
