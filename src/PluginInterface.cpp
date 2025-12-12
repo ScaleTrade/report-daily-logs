@@ -122,7 +122,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     for (size_t i; i < all_logs_vector.size(); i++) {
         table_builder.AddRow({
-            {"id", utils::RoundDouble(static_cast<double>(i), 0)},
+            {"id", utils::TruncateDouble(static_cast<double>(i), 0)},
             {"type", all_logs_vector[i].type},
             {"time", all_logs_vector[i].time},
             {"message", all_logs_vector[i].message}
