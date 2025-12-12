@@ -10,12 +10,15 @@ using namespace ast;
 struct TableColumn {
     std::string key;
     std::string language_token;
+    double order;
+
     bool is_sortable = true;
     bool is_exportable = true;
     std::string filter_type = "search";
 
     std::map<std::string, JSONValue> extra_props;
     std::map<std::string, JSONValue> filter_props;
+
 
     void AddColumnProp(const std::string& name, const JSONValue& value) {
         extra_props[name] = value;
@@ -40,6 +43,7 @@ struct TableColumn {
         JSONObject column_props = {
             {"name", language_token},
             {"filter", filter},
+            {"order", order},
             {"sort", is_sortable},
             {"export", is_exportable}
         };
@@ -61,7 +65,7 @@ public:
         _columns[column.key] = column.ToJSON();
     }
 
-    void AddRow(const std::map<std::string, std::string>& row_data) {
+    void AddRow(const std::map<std::string, JSONValue>& row_data) {
         JSONObject row;
         for (const auto& [key, value] : row_data) {
             row[key] = value;
@@ -79,6 +83,10 @@ public:
 
     void SetTotalData(const JSONArray& total_data) {
         _total_data = total_data;
+    }
+
+    void SetTotalDataTitle(const std::string& total_data_title) {
+        _total_data_title = total_data_title;
     }
 
     void EnableExportButton(const bool& enabled = true) {
@@ -111,8 +119,9 @@ public:
             {"showRefreshBtn", _show_refresh_button},
             {"showBookmarksBtn", _show_bookmarks_button},
             {"showTotal", _show_total},
+            {"totalDataTitle", _total_data_title},
             {"showExportBtn", _show_export_button},
-            {"structure", structure}
+            {"structure", structure},
         };
 
         if (!_total_data.empty()) {
@@ -133,5 +142,6 @@ private:
     bool _show_bookmarks_button = true;
     bool _show_export_button = true;
     bool _show_total = false;
+    std::string _total_data_title;
 };
 
