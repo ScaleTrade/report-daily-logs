@@ -23,10 +23,10 @@ extern "C" void CreateReport(rapidjson::Value& request,
                              CServerInterface* server) {
     int from;
     int to;
-    int from_two_weeks_ago;
+    int from_week_ago;
     if (request.HasMember("from") && request["from"].IsNumber()) {
         from = request["from"].GetInt();
-        from_two_weeks_ago = utils::CalculateTimestampForTwoWeeksAgo(from);
+        from_week_ago = utils::CalculateTimestampForWeekAgo(from);
     }
     if (request.HasMember("to") && request["to"].IsNumber()) {
         to = request["to"].GetInt();
@@ -38,7 +38,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     std::string other_color = "#B8E986";
 
     try {
-        server->GetLogs(from_two_weeks_ago, to, "", "", &all_logs_vector);
+        server->GetLogs(from_week_ago, to, "", "", &all_logs_vector);
         server->GetLogs(from, to, "REQUEST", "", &requests_logs_vector);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
@@ -110,22 +110,23 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     table_builder.SetIdColumn("id");
     table_builder.SetOrderBy("id", "DESC");
+    table_builder.EnableAutoSave(false);
     table_builder.EnableRefreshButton(false);
     table_builder.EnableBookmarksButton(false);
     table_builder.EnableExportButton(true);
 
-    table_builder.AddColumn({"id", "ID"});
-    table_builder.AddColumn({"type", "TYPE"});
-    table_builder.AddColumn({"time", "TIME"});
-    table_builder.AddColumn({"ip", "IP"});
-    table_builder.AddColumn({"message", "MESSAGE"});
+    table_builder.AddColumn({"id", "ID", 1});
+    table_builder.AddColumn({"type", "TYPE", 2});
+    table_builder.AddColumn({"time", "TIME", 3});
+    table_builder.AddColumn({"ip", "IP", 4});
+    table_builder.AddColumn({"message", "MESSAGE", 5});
 
     for (size_t i; i < all_logs_vector.size(); i++) {
         table_builder.AddRow({
-            {"id", utils::TruncateDouble(static_cast<double>(i), 0)},
-            {"type", all_logs_vector[i].type},
-            {"time", all_logs_vector[i].time},
-            {"message", all_logs_vector[i].message}
+            utils::TruncateDouble(static_cast<double>(i), 0),
+            all_logs_vector[i].type,
+            all_logs_vector[i].time,
+            all_logs_vector[i].message
         });
     }
 

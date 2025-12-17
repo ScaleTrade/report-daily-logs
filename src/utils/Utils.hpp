@@ -29,7 +29,7 @@ namespace utils {
 
     std::string GetGroupCurrencyByName(const std::vector<GroupRecord>& group_vector, const std::string& group_name);
 
-    int CalculateTimestampForTwoWeeksAgo(const int timestamp);
+    int CalculateTimestampForWeekAgo(const int timestamp);
 
     std::string ExtractDate(const std::string& date);
 

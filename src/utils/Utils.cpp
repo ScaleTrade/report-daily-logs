@@ -119,9 +119,9 @@ namespace utils {
         return "N/A";   // группа не найдена - валюта не определена
     }
 
-    int CalculateTimestampForTwoWeeksAgo(const int timestamp) {
-        constexpr int two_weeks_interval = 14 * 24 * 60 * 60;
-        return timestamp - two_weeks_interval;
+    int CalculateTimestampForWeekAgo(const int timestamp) {
+        constexpr int one_week_interval = 7 * 24 * 60 * 60;
+        return timestamp - one_week_interval;
     }
 
     std::string ExtractDate(const std::string& date_string) {
