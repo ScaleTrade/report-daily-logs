@@ -267,4 +267,14 @@ namespace utils {
 
         return result;
     }
+
+    std::string NormalizeLogTime(const std::string& time_string) {
+        auto position = time_string.find('.');
+
+        if (position != std::string::npos) {
+            return time_string.substr(0, position);
+        }
+
+        return time_string;
+    }
 }

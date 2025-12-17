@@ -130,7 +130,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
                 table_builder.AddRow({
                     utils::TruncateDouble(static_cast<double>(i), 0),
                     today_logs[i].type,
-                    today_logs[i].time,
+                    utils::NormalizeLogTime(today_logs[i].time),
                     today_logs[i].message
                 });
         }

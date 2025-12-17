@@ -38,4 +38,6 @@ namespace utils {
     JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& logs_vector);
 
     JSONArray CreateTopFloodersChartData(const std::vector<ServerLog>& logs_vector);
+
+    std::string NormalizeLogTime(const std::string& time_string);
 }
