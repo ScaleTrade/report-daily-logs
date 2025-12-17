@@ -46,8 +46,6 @@ extern "C" void CreateReport(rapidjson::Value& request,
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
 
-    std::cerr << "[size]: " << today_logs.size() << std::endl;
-
     // Server logs chart
     const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(all_logs_vector);
     const std::vector<std::string> line_keys = {"system", "info", "request", "stop_out", "total"};
@@ -125,15 +123,15 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.AddColumn({"ip", "IP", 4});
     table_builder.AddColumn({"message", "MESSAGE", 5});
 
-    for (size_t i; i < today_logs.size(); i++) {
+    for (size_t i = 0; i < today_logs.size(); i++) {
         if (today_logs[i].type != "ERROR"
             && today_logs[i].type != "SYSTEM"
             && today_logs[i].type != "DEBUG") {
                 table_builder.AddRow({
                     utils::TruncateDouble(static_cast<double>(i), 0),
-                    all_logs_vector[i].type,
-                    all_logs_vector[i].time,
-                    all_logs_vector[i].message
+                    today_logs[i].type,
+                    today_logs[i].time,
+                    today_logs[i].message
                 });
         }
     }
