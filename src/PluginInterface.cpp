@@ -34,17 +34,17 @@ extern "C" void CreateReport(rapidjson::Value& request,
 
     std::vector<ServerLog> all_logs_vector;
     std::vector<ServerLog> requests_logs_vector;
+    std::vector<ServerLog> today_logs;
     std::vector<std::string> colors = {"#4A90E2", "#50E3C2", "#F5A623", "#D0021B", "#9013FE"};
     std::string other_color = "#B8E986";
 
     try {
         server->GetLogs(from_week_ago, to, "", "", &all_logs_vector);
         server->GetLogs(from, to, "REQUEST", "", &requests_logs_vector);
+        server->GetLogs(from, to, "", "", &today_logs);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
-
-    std::cout << "all_logs_vector SIZE: " << all_logs_vector.size() << std::endl;
 
     // Server logs chart
     const JSONArray server_logs_chart_data = utils::CreateServerLogsChartData(all_logs_vector);
@@ -123,13 +123,18 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.AddColumn({"ip", "IP", 4});
     table_builder.AddColumn({"message", "MESSAGE", 5});
 
-    for (size_t i; i < all_logs_vector.size(); i++) {
-        table_builder.AddRow({
-            utils::TruncateDouble(static_cast<double>(i), 0),
-            all_logs_vector[i].type,
-            all_logs_vector[i].time,
-            all_logs_vector[i].message
-        });
+    for (size_t i; i < today_logs.size(); i++) {
+        if (today_logs[i].type != "ERROR"
+            && today_logs[i].type != "ERROR"
+            && today_logs[i].type != "SYSTEM"
+            && today_logs[i].type != "DEBUG") {
+                table_builder.AddRow({
+                    utils::TruncateDouble(static_cast<double>(i), 0),
+                    all_logs_vector[i].type,
+                    all_logs_vector[i].time,
+                    all_logs_vector[i].message
+                });
+        }
     }
 
     const JSONObject logs_table_props = table_builder.CreateTableProps();
