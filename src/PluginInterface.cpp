@@ -110,6 +110,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
     // Main table
     TableBuilder table_builder("DailyLogsReport");
 
+    // Main table props
     table_builder.SetIdColumn("id");
     table_builder.SetOrderBy("id", "DESC");
     table_builder.EnableAutoSave(false);
@@ -117,11 +118,18 @@ extern "C" void CreateReport(rapidjson::Value& request,
     table_builder.EnableBookmarksButton(false);
     table_builder.EnableExportButton(true);
 
-    table_builder.AddColumn({"id", "ID", 1});
-    table_builder.AddColumn({"type", "TYPE", 2});
-    table_builder.AddColumn({"time", "TIME", 3});
-    table_builder.AddColumn({"ip", "IP", 4});
-    table_builder.AddColumn({"message", "MESSAGE", 5});
+    // Filters
+    FilterConfig search_filter;
+    search_filter.type = FilterType::Search;
+
+    FilterConfig date_time_filter;
+    date_time_filter.type = FilterType::DateTime;
+
+    table_builder.AddColumn({"id", "ID", 1, search_filter});
+    table_builder.AddColumn({"type", "TYPE", 2, search_filter});
+    table_builder.AddColumn({"time", "TIME", 3, date_time_filter});
+    table_builder.AddColumn({"ip", "IP", 4, search_filter});
+    table_builder.AddColumn({"message", "MESSAGE", 5, search_filter});
 
     for (size_t i = 0; i < today_logs.size(); i++) {
         if (today_logs[i].type != "ERROR"
@@ -131,6 +139,7 @@ extern "C" void CreateReport(rapidjson::Value& request,
                     utils::TruncateDouble(static_cast<double>(i), 0),
                     today_logs[i].type,
                     utils::NormalizeLogTime(today_logs[i].time),
+                    today_logs[i].ip,
                     today_logs[i].message
                 });
         }
