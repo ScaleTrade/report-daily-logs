@@ -17,7 +17,5 @@ add_library(DailyLogsReport SHARED ${SOURCES})
 
 target_include_directories(DailyLogsReport PRIVATE
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/api
-        ${CMAKE_SOURCE_DIR}/external
         ${CMAKE_SOURCE_DIR}/src
 )

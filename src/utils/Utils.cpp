@@ -1,8 +1,8 @@
 #include "Utils.h"
 
 namespace utils {
-    void CreateUI(const ast::Node& node,
-                  rapidjson::Value& response,
+    void CreateUI(const ast::Node&                    node,
+                  rapidjson::Value&                   response,
                   rapidjson::Document::AllocatorType& allocator) {
         // Content
         Value node_object(kObjectType);
@@ -79,14 +79,12 @@ namespace utils {
             footer_array.PushBack(space_object, allocator);
         }
 
-
         // Modal
         Value model_object(kObjectType);
         model_object.AddMember("size", "xxxl", allocator);
         model_object.AddMember("headerContent", header_array, allocator);
         model_object.AddMember("footerContent", footer_array, allocator);
         model_object.AddMember("content", content_array, allocator);
-
 
         // UI
         Value ui_object(kObjectType);
@@ -110,13 +108,14 @@ namespace utils {
         return std::trunc(value * factor) / factor;
     }
 
-    std::string GetGroupCurrencyByName(const std::vector<GroupRecord>& group_vector, const std::string& group_name) {
+    std::string GetGroupCurrencyByName(const std::vector<ReportGroupRecord>& group_vector,
+                                       const std::string&                    group_name) {
         for (const auto& group : group_vector) {
             if (group.group == group_name) {
                 return group.currency;
             }
         }
-        return "N/A";   // группа не найдена - валюта не определена
+        return "N/A"; // группа не найдена - валюта не определена
     }
 
     int CalculateTimestampForWeekAgo(const int timestamp) {
@@ -133,20 +132,23 @@ namespace utils {
 
     bool IsValidIpAddress(const std::string& ip_address) {
         std::istringstream ss(ip_address);
-        std::string token;
-        int segments = 0;
+        std::string        token;
+        int                segments = 0;
 
         while (std::getline(ss, token, '.')) {
             // Проверка, что сегмент не пустой
-            if (token.empty()) return false;
+            if (token.empty())
+                return false;
 
             // Проверка, что сегмент состоит только из цифр
             for (char c : token) {
-                if (!std::isdigit(c)) return false;
+                if (!std::isdigit(c))
+                    return false;
             }
 
             int num = std::stoi(token);
-            if (num < 0 || num > 255) return false;
+            if (num < 0 || num > 255)
+                return false;
 
             ++segments;
         }
@@ -155,25 +157,22 @@ namespace utils {
         return segments == 4;
     }
 
-    JSONArray CreateServerLogsChartData(const std::vector<ServerLog>& logs_vector) {
+    JSONArray CreateServerLogsChartData(const std::vector<ReportServerLog>& logs_vector) {
         std::map<std::string, LogCountPoint> logs_map;
 
         for (const auto& log : logs_vector) {
             std::string day = ExtractDate(log.time);
 
             auto& point = logs_map[day];
-            point.date = day;
+            point.date  = day;
 
             if (log.type == "SYSTEM") {
                 point.system++;
-            }
-            else if (log.type == "INFO") {
+            } else if (log.type == "INFO") {
                 point.info++;
-            }
-            else if (log.type == "REQUEST") {
+            } else if (log.type == "REQUEST") {
                 point.request++;
-            }
-            else if (log.type == "STOP_OUT") {
+            } else if (log.type == "STOP_OUT") {
                 point.stop_out++;
             }
 
@@ -187,10 +186,9 @@ namespace utils {
             data_points.push_back(point);
         }
 
-        std::sort(data_points.begin(), data_points.end(),
-            [](const LogCountPoint& a, const LogCountPoint& b) {
-                return a.date < b.date;
-            });
+        std::sort(data_points.begin(),
+                  data_points.end(),
+                  [](const LogCountPoint& a, const LogCountPoint& b) { return a.date < b.date; });
 
         JSONArray chart_data;
         for (const auto& point : data_points) {
@@ -208,11 +206,11 @@ namespace utils {
         return chart_data;
     }
 
-    JSONArray CreateTopFloodersChartData(const std::vector<ServerLog>& logs_vector) {
+    JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector) {
         std::unordered_map<std::string, int> ip_counts;
 
         // Подсчет количества логов по IP
-        for (const auto &log : logs_vector) {
+        for (const auto& log : logs_vector) {
             if (IsValidIpAddress(log.ip)) {
                 ip_counts[log.ip]++;
             }
@@ -222,24 +220,25 @@ namespace utils {
         std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
 
         // Сортировка по убыванию
-        std::sort(sorted_ips.begin(), sorted_ips.end(),
-                  [](const auto &a, const auto &b) { return a.second > b.second; });
+        std::sort(sorted_ips.begin(), sorted_ips.end(), [](const auto& a, const auto& b) {
+            return a.second > b.second;
+        });
 
         // Общее количество логов
         double total = 0;
-        for (const auto &p : sorted_ips) {
+        for (const auto& p : sorted_ips) {
             total += p.second;
         }
 
         JSONArray result;
 
         // Подготовка топ 5
-        int limit = std::min((int)sorted_ips.size(), 5);
+        int    limit   = std::min((int)sorted_ips.size(), 5);
         double top_sum = 0.0;
 
         for (int i = 0; i < limit; ++i) {
-            const auto &ip = sorted_ips[i].first;
-            int count = sorted_ips[i].second;
+            const auto& ip    = sorted_ips[i].first;
+            int         count = sorted_ips[i].second;
             top_sum += count;
 
             double percent = (count / total) * 100.0;
@@ -254,7 +253,7 @@ namespace utils {
         }
 
         // Добавление категории "Other"
-        double other_sum = total - top_sum;
+        double other_sum     = total - top_sum;
         double other_percent = (other_sum / total) * 100.0;
         // Округление до 2 знаков после запятой
         other_percent = std::round(other_percent * 100.0) / 100.0;
@@ -277,4 +276,4 @@ namespace utils {
 
         return time_string;
     }
-}
+} // namespace utils
