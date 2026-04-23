@@ -227,32 +227,32 @@ namespace utils {
         return result;
     }
 
-    // bool IsValidIpAddress(const std::string& ip_address) {
-    //     std::istringstream ss(ip_address);
-    //     std::string        token;
-    //     int                segments = 0;
-    //
-    //     while (std::getline(ss, token, '.')) {
-    //         // Проверка, что сегмент не пустой
-    //         if (token.empty())
-    //             return false;
-    //
-    //         // Проверка, что сегмент состоит только из цифр
-    //         for (char c : token) {
-    //             if (!std::isdigit(c))
-    //                 return false;
-    //         }
-    //
-    //         int num = std::stoi(token);
-    //         if (num < 0 || num > 255)
-    //             return false;
-    //
-    //         ++segments;
-    //     }
-    //
-    //     // Должно быть ровно 4 сегмента
-    //     return segments == 4;
-    // }
+    bool IsValidIpAddress(const std::string& ip_address) {
+        std::istringstream ss(ip_address);
+        std::string        token;
+        int                segments = 0;
+
+        while (std::getline(ss, token, '.')) {
+            // Проверка, что сегмент не пустой
+            if (token.empty())
+                return false;
+
+            // Проверка, что сегмент состоит только из цифр
+            for (char c : token) {
+                if (!std::isdigit(c))
+                    return false;
+            }
+
+            int num = std::stoi(token);
+            if (num < 0 || num > 255)
+                return false;
+
+            ++segments;
+        }
+
+        // Должно быть ровно 4 сегмента
+        return segments == 4;
+    }
 
     // std::string NormalizeLogTime(const std::string& time_string) {
     //     auto position = time_string.find('.');
