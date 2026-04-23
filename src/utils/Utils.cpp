@@ -176,6 +176,19 @@ namespace utils {
             }
         }
 
+        // Ранний выход при нулевом значении
+
+        if (ip_counts.empty()) {
+            JSONArray empty;
+
+            JSONObject other_item;
+            other_item["label"] = "No data";
+            other_item["value"] = 100.0;
+
+            empty.emplace_back(other_item);
+            return empty;
+        }
+
         // Перенос в вектор для сортировки
         std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
 
