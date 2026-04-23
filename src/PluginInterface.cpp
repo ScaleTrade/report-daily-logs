@@ -28,6 +28,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     int from;
     int to;
     int from_week_ago;
+
     if (request.HasMember("from") && request["from"].IsNumber()) {
         from          = request["from"].GetInt();
         from_week_ago = utils::CalculateTimestampForWeekAgo(from);
@@ -49,6 +50,10 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
+
+    std::cout << "SIZES: " << all_logs_vector.size()
+              << ", " << requests_logs_vector.size()
+              << ", " << today_logs.size() << std::endl;
 
     // Server logs chart
     const JSONArray server_logs_chart_data    = utils::CreateServerLogsChartData(all_logs_vector);
