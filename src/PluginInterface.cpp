@@ -45,7 +45,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
 
     try {
         server->GetLogs(from_week_ago, to, "", "", &all_logs_vector);
-        server->GetLogs(from, to, "MANAGER", "", &clients_logs_vector);
+        server->GetLogs(from, to, "CLIENT", "", &clients_logs_vector);
         // server->GetLogs(from, to, "", "", &today_logs);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
@@ -141,7 +141,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
         h1({text("Server Logs")}),
         h2({text("Server Messages (last 2 weeks)")}),
         server_logs_chart_node,
-        h2({text("Top flooders (24h)")}),
+        h2({text("Top flooders (24h, %)")}),
         top_flooders_chart,
         // h2({text("All Logs")}),
         // logs_table_node
