@@ -123,7 +123,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     table_builder.AddColumn({"detail", "DETAIL", 7, search_filter});
 
     for (size_t i = 0; i < today_logs.size(); i++) {
-        table_builder.AddRow({today_logs[i].time,
+        table_builder.AddRow({utils::NormalizeLogTime(today_logs[i].time),
                               today_logs[i].actor_id,
                               today_logs[i].actor_type,
                               today_logs[i].action,
