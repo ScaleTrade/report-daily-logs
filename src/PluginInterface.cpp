@@ -38,18 +38,20 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     }
 
     std::vector<ReportServerLog> all_logs_vector;
-    std::vector<ReportServerLog> requests_logs_vector;
+    std::vector<ReportServerLog> clients_logs_vector;
     std::vector<ReportServerLog> today_logs;
     std::vector<std::string>     colors = {"#4A90E2", "#50E3C2", "#F5A623", "#D0021B", "#9013FE"};
     std::string                  other_color = "#B8E986";
 
     try {
         server->GetLogs(from_week_ago, to, "", "", &all_logs_vector);
-        server->GetLogs(from, to, "CLIENT", "", &requests_logs_vector);
+        server->GetLogs(from, to, "CLIENT", "", &clients_logs_vector);
         // server->GetLogs(from, to, "", "", &today_logs);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
+
+    std::cout << "SIZE: " << clients_logs_vector.size() << std::endl;
 
     // Server logs chart
     const JSONArray server_logs_chart_data    = utils::CreateServerLogsChartData(all_logs_vector);
@@ -74,7 +76,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
 
     // Top flooder chart
     const JSONArray top_flooders_chart_data =
-        utils::CreateTopFloodersChartData(requests_logs_vector);
+        utils::CreateTopFloodersChartData(clients_logs_vector);
 
     // Вектор Cell с цветами для каждой записи
     std::vector<Node> top_flooders_pie_cells;
