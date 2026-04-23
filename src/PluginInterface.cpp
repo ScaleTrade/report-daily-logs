@@ -51,10 +51,6 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
 
-    std::cout << "SIZES: " << all_logs_vector.size()
-              << ", " << requests_logs_vector.size()
-              << ", " << today_logs.size() << std::endl;
-
     // Server logs chart
     const JSONArray server_logs_chart_data    = utils::CreateServerLogsChartData(all_logs_vector);
     const std::vector<std::string> line_keys  = {"system", "info", "request", "stop_out", "total"};
