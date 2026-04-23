@@ -75,28 +75,28 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
                             props({{"width", "100%"}, {"height", 300.0}}));
 
     // Top flooder chart
-    // const JSONArray top_flooders_chart_data =
-    //     utils::CreateTopFloodersChartData(clients_logs_vector);
-    //
-    // // Вектор Cell с цветами для каждой записи
-    // std::vector<Node> top_flooders_pie_cells;
-    // for (size_t i = 0; i < top_flooders_chart_data.size(); ++i) {
-    //     std::string color = i < colors.size() ? colors[i] : other_color;
-    //     top_flooders_pie_cells.push_back(Cell({}, props({{"fill", color}})));
-    // }
-    //
-    // Node top_flooders_chart =
-    //     ResponsiveContainer({PieChart({Tooltip(),
-    //                                    Legend(),
-    //                                    Pie(top_flooders_pie_cells,
-    //                                        props({{"dataKey", "value"},
-    //                                               {"nameKey", "label"},
-    //                                               {"data", top_flooders_chart_data},
-    //                                               {"cx", "50%"},
-    //                                               {"cy", "50%"},
-    //                                               {"outerRadius", 100.0},
-    //                                               {"label", true}}))})},
-    //                         props({{"width", "100%"}, {"height", 300.0}}));
+    const JSONArray top_flooders_chart_data =
+        utils::CreateTopFloodersChartData(clients_logs_vector);
+
+    // Вектор Cell с цветами для каждой записи
+    std::vector<Node> top_flooders_pie_cells;
+    for (size_t i = 0; i < top_flooders_chart_data.size(); ++i) {
+        std::string color = i < colors.size() ? colors[i] : other_color;
+        top_flooders_pie_cells.push_back(Cell({}, props({{"fill", color}})));
+    }
+
+    Node top_flooders_chart =
+        ResponsiveContainer({PieChart({Tooltip(),
+                                       Legend(),
+                                       Pie(top_flooders_pie_cells,
+                                           props({{"dataKey", "value"},
+                                                  {"nameKey", "label"},
+                                                  {"data", top_flooders_chart_data},
+                                                  {"cx", "50%"},
+                                                  {"cy", "50%"},
+                                                  {"outerRadius", 100.0},
+                                                  {"label", true}}))})},
+                            props({{"width", "100%"}, {"height", 300.0}}));
 
     // // Main table
     // TableBuilder table_builder("DailyLogsReport");
@@ -142,7 +142,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
         h2({text("Server Messages (last 2 weeks)")}),
         server_logs_chart_node,
         h2({text("Top flooders (24h)")}),
-        // top_flooders_chart,
+        top_flooders_chart,
         // h2({text("All Logs")}),
         // logs_table_node
     });
