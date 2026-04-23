@@ -267,12 +267,19 @@ namespace utils {
     }
 
     std::string NormalizeLogTime(const std::string& time_string) {
-        auto position = time_string.find('.');
+        std::tm tm = {};
 
-        if (position != std::string::npos) {
-            return time_string.substr(0, position);
+        std::istringstream in(time_string);
+
+        in >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
+
+        if (in.fail()) {
+            return time_string;
         }
 
-        return time_string;
+        std::ostringstream out;
+        out << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+        return out.str();
     }
 } // namespace utils
