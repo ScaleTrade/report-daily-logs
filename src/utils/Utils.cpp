@@ -108,16 +108,6 @@ namespace utils {
         return std::trunc(value * factor) / factor;
     }
 
-    std::string GetGroupCurrencyByName(const std::vector<ReportGroupRecord>& group_vector,
-                                       const std::string&                    group_name) {
-        for (const auto& group : group_vector) {
-            if (group.group == group_name) {
-                return group.currency;
-            }
-        }
-        return "N/A"; // группа не найдена - валюта не определена
-    }
-
     int CalculateTimestampForWeekAgo(const int timestamp) {
         constexpr int one_week_interval = 7 * 24 * 60 * 60;
         return timestamp - one_week_interval;
@@ -130,33 +120,6 @@ namespace utils {
         return date_string;
     }
 
-    bool IsValidIpAddress(const std::string& ip_address) {
-        std::istringstream ss(ip_address);
-        std::string        token;
-        int                segments = 0;
-
-        while (std::getline(ss, token, '.')) {
-            // Проверка, что сегмент не пустой
-            if (token.empty())
-                return false;
-
-            // Проверка, что сегмент состоит только из цифр
-            for (char c : token) {
-                if (!std::isdigit(c))
-                    return false;
-            }
-
-            int num = std::stoi(token);
-            if (num < 0 || num > 255)
-                return false;
-
-            ++segments;
-        }
-
-        // Должно быть ровно 4 сегмента
-        return segments == 4;
-    }
-
     JSONArray CreateServerLogsChartData(const std::vector<ReportServerLog>& logs_vector) {
         std::map<std::string, LogCountPoint> logs_map;
 
@@ -166,14 +129,12 @@ namespace utils {
             auto& point = logs_map[day];
             point.date  = day;
 
-            if (log.type == "SYSTEM") {
+            if (log.actor_type == "CLIENT") {
+                point.client++;
+            } else if (log.actor_type == "MANAGER") {
+                point.manager++;
+            } else if (log.actor_type == "SYSTEM") {
                 point.system++;
-            } else if (log.type == "INFO") {
-                point.info++;
-            } else if (log.type == "REQUEST") {
-                point.request++;
-            } else if (log.type == "STOP_OUT") {
-                point.stop_out++;
             }
 
             point.total++;
@@ -193,12 +154,11 @@ namespace utils {
         JSONArray chart_data;
         for (const auto& point : data_points) {
             JSONObject row;
-            row["day"]      = JSONValue(point.date);
-            row["system"]   = JSONValue(static_cast<double>(point.system));
-            row["info"]     = JSONValue(static_cast<double>(point.info));
-            row["request"]  = JSONValue(static_cast<double>(point.request));
-            row["stop_out"] = JSONValue(static_cast<double>(point.stop_out));
-            row["total"]    = JSONValue(static_cast<double>(point.total));
+            row["day"]     = JSONValue(point.date);
+            row["client"]  = JSONValue(static_cast<double>(point.client));
+            row["manager"] = JSONValue(static_cast<double>(point.manager));
+            row["system"]  = JSONValue(static_cast<double>(point.system));
+            row["total"]   = JSONValue(static_cast<double>(point.total));
 
             chart_data.emplace_back(row);
         }
@@ -206,74 +166,101 @@ namespace utils {
         return chart_data;
     }
 
-    JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector) {
-        std::unordered_map<std::string, int> ip_counts;
+    // bool IsValidIpAddress(const std::string& ip_address) {
+    //     std::istringstream ss(ip_address);
+    //     std::string        token;
+    //     int                segments = 0;
+    //
+    //     while (std::getline(ss, token, '.')) {
+    //         // Проверка, что сегмент не пустой
+    //         if (token.empty())
+    //             return false;
+    //
+    //         // Проверка, что сегмент состоит только из цифр
+    //         for (char c : token) {
+    //             if (!std::isdigit(c))
+    //                 return false;
+    //         }
+    //
+    //         int num = std::stoi(token);
+    //         if (num < 0 || num > 255)
+    //             return false;
+    //
+    //         ++segments;
+    //     }
+    //
+    //     // Должно быть ровно 4 сегмента
+    //     return segments == 4;
+    // }
 
-        // Подсчет количества логов по IP
-        for (const auto& log : logs_vector) {
-            if (IsValidIpAddress(log.ip)) {
-                ip_counts[log.ip]++;
-            }
-        }
-
-        // Перенос в вектор для сортировки
-        std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
-
-        // Сортировка по убыванию
-        std::sort(sorted_ips.begin(), sorted_ips.end(), [](const auto& a, const auto& b) {
-            return a.second > b.second;
-        });
-
-        // Общее количество логов
-        double total = 0;
-        for (const auto& p : sorted_ips) {
-            total += p.second;
-        }
-
-        JSONArray result;
-
-        // Подготовка топ 5
-        int    limit   = std::min((int)sorted_ips.size(), 5);
-        double top_sum = 0.0;
-
-        for (int i = 0; i < limit; ++i) {
-            const auto& ip    = sorted_ips[i].first;
-            int         count = sorted_ips[i].second;
-            top_sum += count;
-
-            double percent = (count / total) * 100.0;
-            // Округление до 2 знаков после запятой
-            percent = std::round(percent * 100.0) / 100.0;
-
-            JSONObject item;
-            item["label"] = ip;
-            item["value"] = percent;
-
-            result.emplace_back(item);
-        }
-
-        // Добавление категории "Other"
-        double other_sum     = total - top_sum;
-        double other_percent = (other_sum / total) * 100.0;
-        // Округление до 2 знаков после запятой
-        other_percent = std::round(other_percent * 100.0) / 100.0;
-
-        JSONObject other_item;
-        other_item["label"] = "Other";
-        other_item["value"] = other_percent;
-
-        result.emplace_back(other_item);
-
-        return result;
-    }
-
-    std::string NormalizeLogTime(const std::string& time_string) {
-        auto position = time_string.find('.');
-
-        if (position != std::string::npos) {
-            return time_string.substr(0, position);
-        }
-
-        return time_string;
-    }
+    // JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector) {
+    //     std::unordered_map<std::string, int> ip_counts;
+    //
+    //     // Подсчет количества логов по IP
+    //     for (const auto& log : logs_vector) {
+    //         if (IsValidIpAddress(log.ip)) {
+    //             ip_counts[log.ip]++;
+    //         }
+    //     }
+    //
+    //     // Перенос в вектор для сортировки
+    //     std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
+    //
+    //     // Сортировка по убыванию
+    //     std::sort(sorted_ips.begin(), sorted_ips.end(), [](const auto& a, const auto& b) {
+    //         return a.second > b.second;
+    //     });
+    //
+    //     // Общее количество логов
+    //     double total = 0;
+    //     for (const auto& p : sorted_ips) {
+    //         total += p.second;
+    //     }
+    //
+    //     JSONArray result;
+    //
+    //     // Подготовка топ 5
+    //     int    limit   = std::min((int)sorted_ips.size(), 5);
+    //     double top_sum = 0.0;
+    //
+    //     for (int i = 0; i < limit; ++i) {
+    //         const auto& ip    = sorted_ips[i].first;
+    //         int         count = sorted_ips[i].second;
+    //         top_sum += count;
+    //
+    //         double percent = (count / total) * 100.0;
+    //         // Округление до 2 знаков после запятой
+    //         percent = std::round(percent * 100.0) / 100.0;
+    //
+    //         JSONObject item;
+    //         item["label"] = ip;
+    //         item["value"] = percent;
+    //
+    //         result.emplace_back(item);
+    //     }
+    //
+    //     // Добавление категории "Other"
+    //     double other_sum     = total - top_sum;
+    //     double other_percent = (other_sum / total) * 100.0;
+    //     // Округление до 2 знаков после запятой
+    //     other_percent = std::round(other_percent * 100.0) / 100.0;
+    //
+    //     JSONObject other_item;
+    //     other_item["label"] = "Other";
+    //     other_item["value"] = other_percent;
+    //
+    //     result.emplace_back(other_item);
+    //
+    //     return result;
+    // }
+    //
+    // std::string NormalizeLogTime(const std::string& time_string) {
+    //     auto position = time_string.find('.');
+    //
+    //     if (position != std::string::npos) {
+    //         return time_string.substr(0, position);
+    //     }
+    //
+    //     return time_string;
+    // }
 } // namespace utils

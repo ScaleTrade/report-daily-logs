@@ -28,18 +28,17 @@ namespace utils {
 
     double TruncateDouble(const double& value, const int& digits);
 
-    std::string GetGroupCurrencyByName(const std::vector<ReportGroupRecord>& group_vector,
-                                       const std::string&                    group_name);
-
     int CalculateTimestampForWeekAgo(const int timestamp);
 
     std::string ExtractDate(const std::string& date);
 
-    bool IsValidIpAddress(const std::string& ip_address);
-
     JSONArray CreateServerLogsChartData(const std::vector<ReportServerLog>& logs_vector);
 
-    JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector);
+    // bool IsValidIpAddress(const std::string& ip_address);
+    //
 
-    std::string NormalizeLogTime(const std::string& time_string);
+    //
+    // JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector);
+    //
+    // std::string NormalizeLogTime(const std::string& time_string);
 } // namespace utils

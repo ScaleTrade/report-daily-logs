@@ -2,9 +2,8 @@
 
 struct LogCountPoint {
     std::string date;
-    int         system   = 0;
-    int         info     = 0;
-    int         request  = 0;
-    int         stop_out = 0;
-    int         total    = 0;
+    int         client  = 0;
+    int         manager = 0;
+    int         system  = 0;
+    int         total   = 0;
 };

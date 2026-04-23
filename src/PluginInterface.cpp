@@ -45,8 +45,8 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
 
     try {
         server->GetLogs(from_week_ago, to, "", "", &all_logs_vector);
-        server->GetLogs(from, to, "REQUEST", "", &requests_logs_vector);
-        server->GetLogs(from, to, "", "", &today_logs);
+        // server->GetLogs(from, to, "REQUEST", "", &requests_logs_vector);
+        // server->GetLogs(from, to, "", "", &today_logs);
     } catch (const std::exception& e) {
         std::cerr << "[DailyLogsReportInterface]: " << e.what() << std::endl;
     }
@@ -72,76 +72,76 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
         ResponsiveContainer({LineChart(line_nodes, props({{"data", server_logs_chart_data}}))},
                             props({{"width", "100%"}, {"height", 300.0}}));
 
-    // Top flooder chart
-    const JSONArray top_flooders_chart_data =
-        utils::CreateTopFloodersChartData(requests_logs_vector);
-
-    // Вектор Cell с цветами для каждой записи
-    std::vector<Node> top_flooders_pie_cells;
-    for (size_t i = 0; i < top_flooders_chart_data.size(); ++i) {
-        std::string color = i < colors.size() ? colors[i] : other_color;
-        top_flooders_pie_cells.push_back(Cell({}, props({{"fill", color}})));
-    }
-
-    Node top_flooders_chart =
-        ResponsiveContainer({PieChart({Tooltip(),
-                                       Legend(),
-                                       Pie(top_flooders_pie_cells,
-                                           props({{"dataKey", "value"},
-                                                  {"nameKey", "label"},
-                                                  {"data", top_flooders_chart_data},
-                                                  {"cx", "50%"},
-                                                  {"cy", "50%"},
-                                                  {"outerRadius", 100.0},
-                                                  {"label", true}}))})},
-                            props({{"width", "100%"}, {"height", 300.0}}));
-
-    // Main table
-    TableBuilder table_builder("DailyLogsReport");
-
-    // Main table props
-    table_builder.SetIdColumn("id");
-    table_builder.SetOrderBy("id", "DESC");
-    table_builder.EnableAutoSave(false);
-    table_builder.EnableRefreshButton(false);
-    table_builder.EnableBookmarksButton(false);
-    table_builder.EnableExportButton(true);
-
-    // Filters
-    FilterConfig search_filter;
-    search_filter.type = FilterType::Search;
-
-    FilterConfig date_time_filter;
-    date_time_filter.type = FilterType::DateTime;
-
-    table_builder.AddColumn({"id", "ID", 1, search_filter});
-    table_builder.AddColumn({"type", "TYPE", 2, search_filter});
-    table_builder.AddColumn({"time", "TIME", 3, date_time_filter});
-    table_builder.AddColumn({"ip", "IP", 4, search_filter});
-    table_builder.AddColumn({"message", "MESSAGE", 5, search_filter});
-
-    for (size_t i = 0; i < today_logs.size(); i++) {
-        if (today_logs[i].type != "ERROR" && today_logs[i].type != "SYSTEM" &&
-            today_logs[i].type != "DEBUG") {
-            table_builder.AddRow({utils::TruncateDouble(static_cast<double>(i), 0),
-                                  today_logs[i].type,
-                                  utils::NormalizeLogTime(today_logs[i].time),
-                                  today_logs[i].ip,
-                                  today_logs[i].message});
-        }
-    }
-
-    const JSONObject logs_table_props = table_builder.CreateTableProps();
-    const Node       logs_table_node  = Table({}, logs_table_props);
+    // // Top flooder chart
+    // const JSONArray top_flooders_chart_data =
+    //     utils::CreateTopFloodersChartData(requests_logs_vector);
+    //
+    // // Вектор Cell с цветами для каждой записи
+    // std::vector<Node> top_flooders_pie_cells;
+    // for (size_t i = 0; i < top_flooders_chart_data.size(); ++i) {
+    //     std::string color = i < colors.size() ? colors[i] : other_color;
+    //     top_flooders_pie_cells.push_back(Cell({}, props({{"fill", color}})));
+    // }
+    //
+    // Node top_flooders_chart =
+    //     ResponsiveContainer({PieChart({Tooltip(),
+    //                                    Legend(),
+    //                                    Pie(top_flooders_pie_cells,
+    //                                        props({{"dataKey", "value"},
+    //                                               {"nameKey", "label"},
+    //                                               {"data", top_flooders_chart_data},
+    //                                               {"cx", "50%"},
+    //                                               {"cy", "50%"},
+    //                                               {"outerRadius", 100.0},
+    //                                               {"label", true}}))})},
+    //                         props({{"width", "100%"}, {"height", 300.0}}));
+    //
+    // // Main table
+    // TableBuilder table_builder("DailyLogsReport");
+    //
+    // // Main table props
+    // table_builder.SetIdColumn("id");
+    // table_builder.SetOrderBy("id", "DESC");
+    // table_builder.EnableAutoSave(false);
+    // table_builder.EnableRefreshButton(false);
+    // table_builder.EnableBookmarksButton(false);
+    // table_builder.EnableExportButton(true);
+    //
+    // // Filters
+    // FilterConfig search_filter;
+    // search_filter.type = FilterType::Search;
+    //
+    // FilterConfig date_time_filter;
+    // date_time_filter.type = FilterType::DateTime;
+    //
+    // table_builder.AddColumn({"id", "ID", 1, search_filter});
+    // table_builder.AddColumn({"type", "TYPE", 2, search_filter});
+    // table_builder.AddColumn({"time", "TIME", 3, date_time_filter});
+    // table_builder.AddColumn({"ip", "IP", 4, search_filter});
+    // table_builder.AddColumn({"message", "MESSAGE", 5, search_filter});
+    //
+    // for (size_t i = 0; i < today_logs.size(); i++) {
+    //     if (today_logs[i].type != "ERROR" && today_logs[i].type != "SYSTEM" &&
+    //         today_logs[i].type != "DEBUG") {
+    //         table_builder.AddRow({utils::TruncateDouble(static_cast<double>(i), 0),
+    //                               today_logs[i].type,
+    //                               utils::NormalizeLogTime(today_logs[i].time),
+    //                               today_logs[i].ip,
+    //                               today_logs[i].message});
+    //     }
+    // }
+    //
+    // const JSONObject logs_table_props = table_builder.CreateTableProps();
+    // const Node       logs_table_node  = Table({}, logs_table_props);
 
     // Total report
-    const Node report = Column({h1({text("Server Logs")}),
-                                h2({text("Server Messages")}),
-                                server_logs_chart_node,
-                                h2({text("Top flooders")}),
-                                top_flooders_chart,
-                                h2({text("All Logs")}),
-                                logs_table_node});
+    const Node report = Column({
+        h1({text("Server Logs")}), h2({text("Server Messages")}), server_logs_chart_node,
+        // h2({text("Top flooders")}),
+        // top_flooders_chart,
+        // h2({text("All Logs")}),
+        // logs_table_node
+    });
 
     utils::CreateUI(report, response, allocator);
 }
