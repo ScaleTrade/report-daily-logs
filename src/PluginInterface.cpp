@@ -96,54 +96,53 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
                                                   {"label", true}}))})},
                             props({{"width", "100%"}, {"height", 300.0}}));
 
-    // // Main table
-    // TableBuilder table_builder("DailyLogsReport");
-    //
-    // // Main table props
-    // table_builder.SetIdColumn("id");
-    // table_builder.SetOrderBy("id", "DESC");
-    // table_builder.EnableAutoSave(false);
-    // table_builder.EnableRefreshButton(false);
-    // table_builder.EnableBookmarksButton(false);
-    // table_builder.EnableExportButton(true);
-    //
-    // // Filters
-    // FilterConfig search_filter;
-    // search_filter.type = FilterType::Search;
-    //
-    // FilterConfig date_time_filter;
-    // date_time_filter.type = FilterType::DateTime;
-    //
-    // table_builder.AddColumn({"id", "ID", 1, search_filter});
-    // table_builder.AddColumn({"type", "TYPE", 2, search_filter});
-    // table_builder.AddColumn({"time", "TIME", 3, date_time_filter});
-    // table_builder.AddColumn({"ip", "IP", 4, search_filter});
-    // table_builder.AddColumn({"message", "MESSAGE", 5, search_filter});
-    //
-    // for (size_t i = 0; i < today_logs.size(); i++) {
-    //     if (today_logs[i].type != "ERROR" && today_logs[i].type != "SYSTEM" &&
-    //         today_logs[i].type != "DEBUG") {
-    //         table_builder.AddRow({utils::TruncateDouble(static_cast<double>(i), 0),
-    //                               today_logs[i].type,
-    //                               utils::NormalizeLogTime(today_logs[i].time),
-    //                               today_logs[i].ip,
-    //                               today_logs[i].message});
-    //     }
-    // }
-    //
-    // const JSONObject logs_table_props = table_builder.CreateTableProps();
-    // const Node       logs_table_node  = Table({}, logs_table_props);
+    // Main table
+    TableBuilder table_builder("DailyLogsReport");
+
+    // Main table props
+    table_builder.SetIdColumn("id");
+    table_builder.SetOrderBy("id", "DESC");
+    table_builder.EnableAutoSave(false);
+    table_builder.EnableRefreshButton(false);
+    table_builder.EnableBookmarksButton(false);
+    table_builder.EnableExportButton(true);
+
+    // Filters
+    FilterConfig search_filter;
+    search_filter.type = FilterType::Search;
+
+    FilterConfig date_time_filter;
+    date_time_filter.type = FilterType::DateTime;
+
+    table_builder.AddColumn({"time", "TIME", 1, date_time_filter});
+    table_builder.AddColumn({"actor_id", "ACTOR_ID", 2, search_filter});
+    table_builder.AddColumn({"actor_type", "ACTOR_TYPE", 3, search_filter});
+    table_builder.AddColumn({"action", "ACTION", 4, search_filter});
+    table_builder.AddColumn({"status", "STATUS", 5, search_filter});
+    table_builder.AddColumn({"source", "SOURCE", 6, search_filter});
+    table_builder.AddColumn({"detail", "DETAIL", 7, search_filter});
+
+    for (size_t i = 0; i < today_logs.size(); i++) {
+        table_builder.AddRow({utils::NormalizeLogTime(today_logs[i].time),
+                              today_logs[i].actor_id,
+                              today_logs[i].actor_type,
+                              today_logs[i].action,
+                              today_logs[i].status,
+                              today_logs[i].source,
+                              today_logs[i].detail});
+    }
+
+    const JSONObject logs_table_props = table_builder.CreateTableProps();
+    const Node       logs_table_node  = Table({}, logs_table_props);
 
     // Total report
-    const Node report = Column({
-        h1({text("Server Logs")}),
-        h2({text("Server Messages (last 2 weeks)")}),
-        server_logs_chart_node,
-        h2({text("Top flooders (24h, %)")}),
-        top_flooders_chart,
-        // h2({text("All Logs")}),
-        // logs_table_node
-    });
+    const Node report = Column({h1({text("Server Logs")}),
+                                h2({text("Server Messages (last 2 weeks)")}),
+                                server_logs_chart_node,
+                                h2({text("Top flooders (24h, %)")}),
+                                top_flooders_chart,
+                                h2({text("All Logs")}),
+                                logs_table_node});
 
     utils::CreateUI(report, response, allocator);
 }

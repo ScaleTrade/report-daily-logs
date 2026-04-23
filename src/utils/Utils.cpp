@@ -177,7 +177,6 @@ namespace utils {
         }
 
         // Ранний выход при нулевом значении
-
         if (ip_counts.empty()) {
             JSONArray empty;
 
@@ -267,13 +266,13 @@ namespace utils {
         return segments == 4;
     }
 
-    // std::string NormalizeLogTime(const std::string& time_string) {
-    //     auto position = time_string.find('.');
-    //
-    //     if (position != std::string::npos) {
-    //         return time_string.substr(0, position);
-    //     }
-    //
-    //     return time_string;
-    // }
+    std::string NormalizeLogTime(const std::string& time_string) {
+        auto position = time_string.find('.');
+
+        if (position != std::string::npos) {
+            return time_string.substr(0, position);
+        }
+
+        return time_string;
+    }
 } // namespace utils
