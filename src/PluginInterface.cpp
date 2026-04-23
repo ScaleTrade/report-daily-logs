@@ -53,7 +53,7 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
 
     // Server logs chart
     const JSONArray server_logs_chart_data    = utils::CreateServerLogsChartData(all_logs_vector);
-    const std::vector<std::string> line_keys  = {"system", "info", "request", "stop_out", "total"};
+    const std::vector<std::string> line_keys  = {"client", "manager", "system", "total"};
     std::vector<Node>              line_nodes = {// Default nodes
                                     XAxis({}, props({{"dataKey", "day"}})),
                                     YAxis(),
