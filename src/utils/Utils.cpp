@@ -166,6 +166,67 @@ namespace utils {
         return chart_data;
     }
 
+    JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector) {
+        std::unordered_map<std::string, int> ip_counts;
+
+        // Подсчет количества логов по IP
+        for (const auto& log : logs_vector) {
+            if (IsValidIpAddress(log.source)) {
+                ip_counts[log.source]++;
+            }
+        }
+
+        // Перенос в вектор для сортировки
+        std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
+
+        // Сортировка по убыванию
+        std::sort(sorted_ips.begin(), sorted_ips.end(), [](const auto& a, const auto& b) {
+            return a.second > b.second;
+        });
+
+        // Общее количество логов
+        double total = 0;
+        for (const auto& p : sorted_ips) {
+            total += p.second;
+        }
+
+        JSONArray result;
+
+        // Подготовка топ 5
+        int    limit   = std::min((int)sorted_ips.size(), 5);
+        double top_sum = 0.0;
+
+        for (int i = 0; i < limit; ++i) {
+            const auto& ip    = sorted_ips[i].first;
+            int         count = sorted_ips[i].second;
+            top_sum += count;
+
+            double percent = (count / total) * 100.0;
+            // Округление до 2 знаков после запятой
+            percent = std::round(percent * 100.0) / 100.0;
+
+            JSONObject item;
+            item["label"] = ip;
+            item["value"] = percent;
+
+            result.emplace_back(item);
+        }
+
+        // Добавление категории "Other"
+        double other_sum     = total - top_sum;
+        double other_percent = (other_sum / total) * 100.0;
+        // Округление до 2 знаков после запятой
+        other_percent = std::round(other_percent * 100.0) / 100.0;
+
+        JSONObject other_item;
+        other_item["label"] = "Other";
+        other_item["value"] = other_percent;
+
+        result.emplace_back(other_item);
+
+        return result;
+    }
+
     // bool IsValidIpAddress(const std::string& ip_address) {
     //     std::istringstream ss(ip_address);
     //     std::string        token;
@@ -193,67 +254,6 @@ namespace utils {
     //     return segments == 4;
     // }
 
-    // JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector) {
-    //     std::unordered_map<std::string, int> ip_counts;
-    //
-    //     // Подсчет количества логов по IP
-    //     for (const auto& log : logs_vector) {
-    //         if (IsValidIpAddress(log.ip)) {
-    //             ip_counts[log.ip]++;
-    //         }
-    //     }
-    //
-    //     // Перенос в вектор для сортировки
-    //     std::vector<std::pair<std::string, int>> sorted_ips(ip_counts.begin(), ip_counts.end());
-    //
-    //     // Сортировка по убыванию
-    //     std::sort(sorted_ips.begin(), sorted_ips.end(), [](const auto& a, const auto& b) {
-    //         return a.second > b.second;
-    //     });
-    //
-    //     // Общее количество логов
-    //     double total = 0;
-    //     for (const auto& p : sorted_ips) {
-    //         total += p.second;
-    //     }
-    //
-    //     JSONArray result;
-    //
-    //     // Подготовка топ 5
-    //     int    limit   = std::min((int)sorted_ips.size(), 5);
-    //     double top_sum = 0.0;
-    //
-    //     for (int i = 0; i < limit; ++i) {
-    //         const auto& ip    = sorted_ips[i].first;
-    //         int         count = sorted_ips[i].second;
-    //         top_sum += count;
-    //
-    //         double percent = (count / total) * 100.0;
-    //         // Округление до 2 знаков после запятой
-    //         percent = std::round(percent * 100.0) / 100.0;
-    //
-    //         JSONObject item;
-    //         item["label"] = ip;
-    //         item["value"] = percent;
-    //
-    //         result.emplace_back(item);
-    //     }
-    //
-    //     // Добавление категории "Other"
-    //     double other_sum     = total - top_sum;
-    //     double other_percent = (other_sum / total) * 100.0;
-    //     // Округление до 2 знаков после запятой
-    //     other_percent = std::round(other_percent * 100.0) / 100.0;
-    //
-    //     JSONObject other_item;
-    //     other_item["label"] = "Other";
-    //     other_item["value"] = other_percent;
-    //
-    //     result.emplace_back(other_item);
-    //
-    //     return result;
-    // }
-    //
     // std::string NormalizeLogTime(const std::string& time_string) {
     //     auto position = time_string.find('.');
     //

@@ -34,11 +34,9 @@ namespace utils {
 
     JSONArray CreateServerLogsChartData(const std::vector<ReportServerLog>& logs_vector);
 
-    // bool IsValidIpAddress(const std::string& ip_address);
-    //
+    JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector);
 
-    //
-    // JSONArray CreateTopFloodersChartData(const std::vector<ReportServerLog>& logs_vector);
-    //
+    bool IsValidIpAddress(const std::string& ip_address);
+
     // std::string NormalizeLogTime(const std::string& time_string);
 } // namespace utils
