@@ -122,14 +122,14 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
     table_builder.AddColumn({"source", "SOURCE", 6, search_filter});
     table_builder.AddColumn({"detail", "DETAIL", 7, search_filter});
 
-    for (size_t i = 0; i < today_logs.size(); i++) {
-        table_builder.AddRow({utils::NormalizeLogTime(today_logs[i].time),
-                              today_logs[i].actor_id,
-                              today_logs[i].actor_type,
-                              today_logs[i].action,
-                              today_logs[i].status,
-                              today_logs[i].source,
-                              today_logs[i].detail});
+    for (auto& today_log : today_logs) {
+        table_builder.AddRow({utils::NormalizeLogTime(today_log.time),
+                              today_log.actor_id,
+                              today_log.actor_type,
+                              today_log.action,
+                              today_log.status,
+                              today_log.source,
+                              today_log.detail});
     }
 
     const JSONObject logs_table_props = table_builder.CreateTableProps();
