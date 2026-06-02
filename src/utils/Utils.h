@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <rapidjson/document.h>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -39,4 +40,8 @@ namespace utils {
     bool IsValidIpAddress(const std::string& ip_address);
 
     std::string NormalizeLogTime(const std::string& time_string);
+
+    std::string Trim(const std::string& str);
+
+    std::set<std::string> SplitToSet(const std::string& str);
 } // namespace utils

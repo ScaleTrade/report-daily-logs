@@ -27,17 +27,35 @@ extern "C" void CreateReport(rapidjson::Value&                   request,
                              rapidjson::Value&                   response,
                              rapidjson::Document::AllocatorType& allocator,
                              ReportServerInterface*              server) {
-    int from;
-    int to;
-    int from_week_ago;
 
-    if (request.HasMember("from") && request["from"].IsNumber()) {
-        from          = request["from"].GetInt();
-        from_week_ago = utils::CalculateTimestampForWeekAgo(from);
+    // Validation
+    constexpr ReportType   report_type = ReportType::Daily;
+    const ValidationResult validation_result =
+        RequestValidator::ValidateRequest(report_type, request, server);
+
+    if (!validation_result.allowed) {
+        std::cerr << "[DailyLogsReportInterface]: " << validation_result.code
+                  << ", message: " << validation_result.message << std::endl;
+
+        const Node report =
+            div({h1({text("Access Denied")},
+                    props({{"style", JSONValue(JSONObject{{"color", JSONValue("#dc2626")}})}})),
+                 h2({text("Code: " + std::to_string(validation_result.code))}),
+                 h2({text(validation_result.message)},
+                    props({{"style", JSONValue(JSONObject{{"color", JSONValue("gray")}})}}))});
+
+        utils::CreateUI(report, response, allocator);
+
+        return;
     }
-    if (request.HasMember("to") && request["to"].IsNumber()) {
-        to = request["to"].GetInt();
-    }
+
+    std::cout << "[DailyLogsReportInterface]: " << validation_result.code
+              << ", message: " << validation_result.message << std::endl;
+
+    // Execution
+    int from          = request["from"].GetInt();
+    int to = request["to"].GetInt();
+    int from_week_ago = utils::CalculateTimestampForWeekAgo(from);
 
     std::vector<ReportServerLog> all_logs_vector;
     std::vector<ReportServerLog> clients_logs_vector;
